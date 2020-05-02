@@ -1,6 +1,6 @@
-# paradis
+# PARADIS
 implemention of PARADIS - fast parallel radix sort algorithm.
-
+http://www.vldb.org/pvldb/vol8/p1518-cho.pdf
 ## Requirements
 
 * CMake `>= 3.50`
@@ -14,14 +14,14 @@ cd build
 cmake ..
 make
 ```
-## run
-### data generation
+## Run
+### Data generation
 write.cc generates binary style input file. The default filename is "1_100_10^9".
 ```sh
 ./write
 ```
 
-### run paradis
+### Run PARADIS
 usage
 ./paradis_ompf_my_read [thread] [inputfile] [datasize].
 
