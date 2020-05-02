@@ -408,33 +408,12 @@ signed main(int argc, char** argv){
     writing_file.open(filename,ios::app);
 
      ll Ds = -1;
-     /*
-     rep(i,1000000000){
-      chmax(Ds,(ll)Dataset2[i]);
-    }
-     */
 
     NumRange=0;while(Ds){NumRange++;Ds/=kisuu;}
    cout<<"NumRange="<<NumRange<<" "<<endl;
     
-    writing_file<<"threadNum="<<threadNum<<" Datasize="<<Datasize<<" NumRange="<<NumRange<<endl;
+    writing_file<<"threadNum="<<threadNum<<" Datasize="<<DATASIZE<<" NumRange="<<NumRange<<endl;
    
-
-    
-    cout<<"std::sort() is running..."<<endl;
-    std::chrono::system_clock::time_point start,end;
-    start = std::chrono::system_clock::now();
-
-    //std::sort(Dataset2,Dataset2+100000000000);
-        
-    end = std::chrono::system_clock::now();
-    double elapsed = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1000.0);
-
-    cout<<" finish!"<<endl;
-
-    printf("std::sort time %lf[ms]\n",elapsed);
-    writing_file<<"std::sort time "<<elapsed<<endl;
-    cout<<endl;
     
        
     cout<<"PARADIS is running..."<<flush;
