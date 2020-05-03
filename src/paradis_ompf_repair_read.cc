@@ -99,7 +99,6 @@ void makeDataset(int* Dataset){
    
     for(long long i=0;i<400LL;i++){
       int ret=read(fd,&Dataset[i*SIZE],sizeof(int)*SIZE);
-      //      int ret2=read(fd,&Dataset2[i*SIZE],sizeof(int)*SIZE);
       if(ret==-1){
 	cout<<"read failure."<<endl;
 	exit(1);
@@ -397,7 +396,7 @@ signed main(int argc, char** argv){
         
     inputfile = to_string(argv[2]);
 
-    DATASIZE = atoi(argv[3]);
+    DATASIZE = atoll(argv[3]);
     
     cout<<"radix="<<kisuu<<endl;
     cout<<"maximum threads="<<thread::hardware_concurrency()<<endl;
