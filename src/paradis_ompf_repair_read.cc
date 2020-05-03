@@ -298,32 +298,56 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       SumCi=0;      
       }
 #pragma omp barrier	
- #pragma omp for
- for(int k=0;k<kRadixBin;k++){
-   ll nthAftKey=0LL;
-   for(int pID=0;pID<var_p;pID++){
-   if(pt[pID][k]-ph[pID][k]>=1e7){
-    cout<<"more than 1e7!"<<endl;
-    #pragma omp parallel for num_threads(2)
-    for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
-    // if(gh[k]==-1)gh[k]=ph[pID][k];
-        _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
-    }
-    }else{
-    for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
-    // if(gh[k]==-1)gh[k]=ph[pID][k];
-    _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
-    }
-   }
-     nthAftKey+=(pt[pID][k]-ph[pID][k]);
-   }
-   gt[k]=gh[k]+nthAftKey;
-   if(gt[k]-gh[k]>0LL)SumCi=1;
- }
 
+      #pragma omp single
+      {
+        ll pfpN=kisuu/var_p;
+        ll pfpM=kisuu%var_p;
+        pfp[0]=0LL;
+        ll pfpMR=0LL;
+        for(ll i=1LL;i<var_p+1LL;i++){
+          if(pfpMR<pfpM)pfpMR++;
+          pfp[i]=i*pfpN+pfpMR;
+        }
+      }
+#pragma omp barrier
 
- #pragma omp barrier
+#pragma omp for
+      for(int pID=0;pID<var_p;pID++){
+        for(ll i=pfp[pID];i<pfp[pID+1];i++){
+          ll tail=gt[i];
+          {
+            for(int pID=0;pID<var_p;pID++){
+              ll head=ph[pID][i];
+              while(head<pt[pID][i]&&head<tail){
+                int v=arr[head++];
+                if(determineDigitBucket(kth_byte,v)!=i){
+                  while(head<=tail){
+                    int w=arr[--tail];
+                    if(determineDigitBucket(kth_byte,w)==i){
+                      arr[head-1LL]=w;
+                      arr[tail]=v;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          gh[i]=tail;
+        }
+      }
       
+#pragma omp barrier
+#pragma omp single
+      {
+        int prevSumCi=SumCi;
+        SumCi=0;
+        for(int i=0;i<kisuu;i++){
+          SumCi+=(gt[i]-gh[i]);
+        }
+      }
+#pragma omp barrier
     }//end of while
     }//end of omp2
 

@@ -28,5 +28,6 @@ add_compile_options(
  
 # main.cpp
 add_executable(paradis_ompf_my_read ${HEADERS} src/paradis_ompf_my_read.cc)
-#add_executable(paradis_ompf_repair_read ${HEADERS} src/paradis_ompf_repair_read.cc)
+add_executable(paradis_ompf_repair_read ${HEADERS} src/paradis_ompf_repair_read.cc)
 add_executable(write ${HEADERS} src/write.cc)
+
