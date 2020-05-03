@@ -30,4 +30,4 @@ add_compile_options(
 add_executable(paradis_ompf_my_read ${HEADERS} src/paradis_ompf_my_read.cc)
 add_executable(paradis_ompf_repair_read ${HEADERS} src/paradis_ompf_repair_read.cc)
 add_executable(write ${HEADERS} src/write.cc)
-
+add_executable(write_1_1 src/write_1_1.cc)
