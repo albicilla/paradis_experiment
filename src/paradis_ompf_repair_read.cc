@@ -82,6 +82,7 @@ const int MaxKisuu=256;
 int threadNum;
 int NumRange=0;
 ll unsortCnt=0;
+ll calldetemine=0;
 
 //std::vector<ll> Dataset;
 //concurrent_vector<int> v;
@@ -129,7 +130,11 @@ static const ll kRadixBin = 1LL << kRadixBits;
 
 template<class D>
 inline int determineDigitBucket(int stage,D num){
-  return ((num>>(8*stage))&kRadixMask);
+  // calldetemine++;
+ //  int ret=((num)/(int)pow(kisuu,stage));
+ // return ret%(kisuu);
+ 
+    return ((num>>(8*stage))&kRadixMask);
 }
 
 
@@ -201,7 +206,8 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     //for paradis repair
     ll pfp[processes+1];
     int var_p=processes;
-
+    ll nthAftKey[256];
+    double start_ck,end_ck;
 #pragma omp parallel num_threads(processes)   
       {
 
@@ -311,15 +317,20 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       }
 #pragma omp barrier
 
-#pragma omp for
-      for(int pID=0;pID<var_p;pID++){
-        for(ll i=pfp[pID];i<pfp[pID+1];i++){
+#pragma omp single
+      {
+	start_ck = omp_get_wtime();
+      }
+      #pragma omp for
+      for(int i=0;i<kisuu;i++){
+	//        for(ll i=pfp[k];i<pfp[k+1];i++){
           ll tail=gt[i];
           {
             for(int pID=0;pID<var_p;pID++){
               ll head=ph[pID][i];
               while(head<pt[pID][i]&&head<tail){
                 int v=arr[head++];
+		nthAftKey[i]++;
                 if(determineDigitBucket(kth_byte,v)!=i){
                   while(head<=tail){
                     int w=arr[--tail];
@@ -332,10 +343,12 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
                 }
               }
             }
-          }
+	    // }
           gh[i]=tail;
         }
       }
+
+     
       
 #pragma omp barrier
 #pragma omp single
@@ -345,6 +358,9 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
         for(int i=0;i<kisuu;i++){
           SumCi+=(gt[i]-gh[i]);
         }
+	//cout<<"SumCi="<<SumCi<<endl;
+	end_ck=omp_get_wtime();
+	cout<<"clock \t"<<(end_ck-start_ck)*1000<<"[ms]"<<endl;
       }
 #pragma omp barrier
     }//end of while
@@ -416,10 +432,13 @@ signed main(int argc, char** argv){
     }
     if(Dataset[i]==1)flag_one=true;
     }
+
+    /*
     if(!flag_one){
       cout<<"Error no one"<<endl;
       exit(1);
     }
+    */
 
     
     cout<<" finish!"<<endl;cout<<endl;
@@ -442,8 +461,8 @@ signed main(int argc, char** argv){
     cout<<"PARADIS is running..."<<flush;
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
-    omp_set_nested(1);
-    RadixSort<ll,3>(Dataset,DATASIZE,0,threadNum);
+    omp_set_max_active_levels(4);
+    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 
@@ -466,5 +485,6 @@ signed main(int argc, char** argv){
 
     printf("paradis time %lf[ms]\n",elapsed);
     writing_file<<"paradis time "<<elapsed<<"\n"<<endl;
+    dump(calldetemine);
 }
 

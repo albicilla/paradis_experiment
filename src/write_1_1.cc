@@ -6,8 +6,8 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-#define SIZE (1000LL * 1000LL * 25LL)
-#define FILE "/work/albicilla/1_1_10^10"
+#define SIZE (1000LL * 100LL * 25LL*6LL)
+#define FILE "/work/albicilla/1_1_10^9*6"
 
 using namespace std;
 

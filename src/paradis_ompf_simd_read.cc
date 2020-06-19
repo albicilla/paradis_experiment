@@ -122,12 +122,16 @@ static const ll kRadixBits = 8;
 static const size_t kInsertSortThreshold = 0;
 static const ll kRadixMask = (1LL << kRadixBits) - 1LL;
 static const ll kRadixBin = 1LL << kRadixBits;
-
+ll calldetemine=0;
 
 
 template<class D>
 inline int determineDigitBucket(int stage,D num){
-  return ((num>>(8*stage))&kRadixMask);
+  calldetemine++;
+  //  int ret=((num)/(int)pow(kisuu,stage));
+  // return ret%kisuu;
+
+      return ((num>>(8*stage))&kRadixMask);
 }
 
 
@@ -200,6 +204,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     ll pfp[processes+1];
     int var_p=processes;
     ll nthAftKey[260];
+    double start_ck,end_ck;
 #pragma omp parallel num_threads(processes)   
       {
 
@@ -293,6 +298,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       {
       nth=1;
       SumCi=0;
+      start_ck=omp_get_wtime();
       }
 #pragma omp barrier	
 #pragma omp for 
@@ -302,11 +308,11 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
      ll partitionedWrongElements=pt[pID][k]-ph[pID][k];
      //     cout<<ph[pID][k]-nthAftKey[k]<<endl;
      if(partitionedWrongElements>=1e7 &&ph[pID][k]-nthAftKey[k] >= partitionedWrongElements){
-         //              cout<<"more than 1e7!"<<endl;
-         //#pragma omp parallel for num_threads(4)
-         #pragma omp simd
+       //cout<<"more than 1e7!"<<endl;
+		       //         #pragma omp parallel for num_threads(4)
+	 #pragma omp simd
          for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){          
-             swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey[k]],arr[ii]);
+             _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey[k]],arr[ii]);
          }
      }else{
          for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
@@ -322,8 +328,17 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 
  #pragma omp barrier
 
- #pragma omp single
+#pragma omp single
+ {
+   end_ck=omp_get_wtime();
+   cout<<"clock \t"<<(end_ck-start_ck)*1000<<"[ms]"<<endl;
+   int sumWrongElements=0;
  cout<<"end of while"<<endl;
+ for(int k=0;k<256;k++){
+   sumWrongElements+=nthAftKey[k];
+ }
+ cout<<"sumWrongElements="<<sumWrongElements<<endl;
+ }
     }//end of while
     }//end of omp2
 
@@ -419,7 +434,7 @@ signed main(int argc, char** argv){
     cout<<"PARADIS is running..."<<flush;
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
-    omp_set_nested(1);
+    omp_set_max_active_levels(4);
     RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
@@ -443,5 +458,6 @@ signed main(int argc, char** argv){
 
     printf("paradis time %lf[ms]\n",elapsed);
     writing_file<<"paradis time "<<elapsed<<"\n"<<endl;
+    dump(calldetemine);
 }
 
