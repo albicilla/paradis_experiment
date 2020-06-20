@@ -442,8 +442,9 @@ signed main(int argc, char** argv){
     cout<<"PARADIS is running..."<<flush;
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
-    omp_set_nested(1);
-    RadixSort<ll,3>(Dataset,DATASIZE,0,threadNum);
+    //omp_set_nested(1);
+    omp_set_max_active_levels(4);
+    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 

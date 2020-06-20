@@ -302,7 +302,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
    ll nthAftKey=0LL;
    for(int pID=0;pID<var_p;pID++){
    if(pt[pID][k]-ph[pID][k]>=1e7){
-    cout<<"more than 1e7!"<<endl;
+     //cout<<"more than 1e7!"<<endl;
     #pragma omp parallel for num_threads(2)
     for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
     // if(gh[k]==-1)gh[k]=ph[pID][k];
@@ -418,8 +418,9 @@ signed main(int argc, char** argv){
     cout<<"PARADIS is running..."<<flush;
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
-    omp_set_nested(1);
-    RadixSort<ll,3>(Dataset,DATASIZE,0,threadNum);
+    //omp_set_nested(1);
+    omp_set_max_active_levels(4);
+    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 

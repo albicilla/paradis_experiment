@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #define SIZE (1000LL * 100LL * 25LL)
-#define FILE "./1_100_10^9"
+#define FILE "/data/1_100_10^9"
 
 using namespace std;
 
