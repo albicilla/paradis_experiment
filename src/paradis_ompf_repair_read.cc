@@ -365,6 +365,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
         }
 	//cout<<"SumCi="<<SumCi<<endl;
 	end_ck=omp_get_wtime();
+
 	repair_ck=(end_ck-start_ck)*1000;
 	cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
 	//because of repair loops we need distinctly count clock

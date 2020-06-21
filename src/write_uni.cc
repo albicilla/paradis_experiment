@@ -3,15 +3,17 @@
 #include <fcntl.h>
 #include <iostream>
 #include <unistd.h>
+#include <random>
+#include <climits>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-
-#define SIZE (1000LL * 100LL * 25LL*6LL)
-#define FILE "/work/albicilla/1_1_10^9*6"
-
+#define SIZE (1000LL * 100LL * 25LL * 1LL)
+#define FILE "/work/albicilla/uni_10^9"
 
 using namespace std;
+
+using ll = long long;
 
 signed main()
 {
@@ -26,39 +28,44 @@ signed main()
   cout << "0" << endl;
   
   long long idx=0LL,n=SIZE;
-  for(long long i=0;i<n*100LL;i++){
-      data[idx]=1;
-      idx++;
-  }
-
-  cout << "1:" <<idx<< endl;
+  uniform_int_distribution<int> dist(0.0,INT_MAX);
+  random_device seed_gen;
+  default_random_engine engine(seed_gen());
   
-  for(long long i=0;i<n*100LL;i++){
-      data[idx]=2;
-      idx++;
+  for(ll i=0;i<n;i++){
+      for(int j=0;j<100;j++){
+          data[idx]=dist(engine);
+          idx++;
+      }
   }
-
+  cout << "1:" <<idx<< endl;
+  for(ll i=0;i<n;i++){
+      for(int j=0;j<100;j++){
+          data[idx]=dist(engine);
+          idx++;
+      }
+  }
   cout << "2:" << idx<<endl;
-  for(long long i=0;i<n*100LL;i++){
-    data[idx]=1;
-    idx++;
+  for(ll i=0;i<n;i++){
+      for(int j=0;j<100;j++){
+          data[idx]=dist(engine);
+          idx++;
+      }
   }
-
-  for(long long i=0;i<n*100LL;i++){
-    data[idx]=2;
-    idx++;
-  }
-  printf("idx: %lld\n", idx);
   
   cout << "3" << endl;
-  for (long long i = 0; i < SIZE * 400LL; i++) {
-    if (data[i] == 0) {
-      printf("Error: %lld (%lld)\n", i, SIZE*400LL);
-      printf("idx: %lld\n", idx);
-      exit(1);
-    }
+  for(ll i=0;i<n;i++){
+      for(int j=0;j<100;j++){
+          data[idx]=dist(engine);
+          idx++;
+      }
   }
+  cout<<"idx="<<idx<<endl;
 
+  for(int i=0;i<100;i++)
+    {
+      cout<<"data[i]="<<data[i]<<endl;
+    }
   int fd = open(FILE, O_WRONLY|O_TRUNC|O_CREAT|O_APPEND,0644);
   for (long long i = 0; i < 400LL; i++) {
     int ret = write(fd, &data[i*SIZE], sizeof(int)*SIZE);

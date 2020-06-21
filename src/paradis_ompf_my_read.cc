@@ -331,10 +331,12 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 #pragma omp single
  {
    end_ck=omp_get_wtime();
+
    repair_ck=(end_ck-start_ck)*1000;
       cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
       //repairは複数回行われるため
       writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
+
 
  }
       
