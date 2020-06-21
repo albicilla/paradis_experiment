@@ -176,6 +176,11 @@ int CallProcesses=0;
 int swapNum=0;
 int needRepairNum=0;
 int prefer_insert=0;
+
+double repair_ck=0.0;
+ofstream writing_file;
+
+
 template<class D,int kth_byte>
 inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     ll cnt[MaxKisuu];
@@ -199,9 +204,9 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     int SumCi=elenum,nth=2;
     int roop=0;
     //for paradis repair
-    ll pfp[processes+1];
+    //    ll pfp[processes+1];
     int var_p=processes;
-
+    double start_ck,end_ck;
 #pragma omp parallel num_threads(processes)   
       {
 
@@ -296,14 +301,16 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       nth=1;
       SumCi=0;      
       }
-#pragma omp barrier	
+#pragma omp barrier
+#pragma omp single
+      start_ck=omp_get_wtime();
  #pragma omp for
  for(int k=0;k<kRadixBin;k++){
    ll nthAftKey=0LL;
    for(int pID=0;pID<var_p;pID++){
-   if(pt[pID][k]-ph[pID][k]>=1e7){
-     //cout<<"more than 1e7!"<<endl;
-    #pragma omp parallel for num_threads(2)
+     if(pt[pID][k]-ph[pID][k]>=1e7 && ph[pID][k]-nthAftKey>=pt[pID][k]-ph[pID][k]){
+       //             cout<<"more than 1e7!"<<endl;
+    #pragma omp parallel for num_threads(4)
     for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
     // if(gh[k]==-1)gh[k]=ph[pID][k];
         _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
@@ -320,8 +327,16 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
    if(gt[k]-gh[k]>0LL)SumCi=1;
  }
 
-
  #pragma omp barrier
+#pragma omp single
+ {
+   end_ck=omp_get_wtime();
+   repair_ck=(end_ck-start_ck)*1000;
+      cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
+      //repairは複数回行われるため
+      writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
+
+ }
       
     }//end of while
     }//end of omp2
@@ -392,25 +407,29 @@ signed main(int argc, char** argv){
     }
     if(Dataset[i]==1)flag_one=true;
     }
+
+    //in general case this is not need
+    /*
     if(!flag_one){
       cout<<"Error no one"<<endl;
       exit(1);
     }
+    */
 
     
     cout<<" finish!"<<endl;cout<<endl;
 
 
-    string filename = "log.txt";
+    string filename = "log_repair.txt";
 
-    ofstream writing_file;
+    
     writing_file.open(filename,ios::app);
 
      ll Ds = -1;
 
     NumRange=0;while(Ds){NumRange++;Ds/=kisuu;}
    cout<<"NumRange="<<NumRange<<" "<<endl;
-    
+   writing_file<<argv[0]<<endl;
     writing_file<<"threadNum="<<threadNum<<" Datasize="<<DATASIZE<<" NumRange="<<NumRange<<endl;
    
     
@@ -418,7 +437,6 @@ signed main(int argc, char** argv){
     cout<<"PARADIS is running..."<<flush;
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
-    //omp_set_nested(1);
     omp_set_max_active_levels(4);
     RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
