@@ -6,8 +6,10 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-#define SIZE (1000LL * 100LL * 25LL*6LL)
-#define FILE "/work/albicilla/1_1_10^9*6"
+
+#define SIZE (1000LL * 100LL * 2500LL*1LL)
+#define FILE "/data/1_1_10^9"
+
 
 using namespace std;
 

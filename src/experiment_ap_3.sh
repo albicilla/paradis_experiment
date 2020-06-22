@@ -3,7 +3,7 @@ for i in `seq 0 7`; do
 	((thnum = 2 ** i))
 	#echo ${i}
 	echo ${thnum}
-	./icc_paradis_ompf_my_read ${thnum} /data/1_1_10^9 1000000000
+	./icc_paradis_ompf_my_read_ap_3 ${thnum} /data/1_1_10^9 1000000000
     done
 done
 for i in `seq 0 7`; do
@@ -11,7 +11,6 @@ for i in `seq 0 7`; do
 	((thnum = 2 ** i))
 	#echo ${i}
 	echo ${thnum}
-	./icc_paradis_ompf_repair_read ${thnum} /data/1_1_10^9 1000000000
-
+	./icc_paradis_ompf_repair_read_3 ${thnum} /data/1_1_10^9 1000000000
     done
 done

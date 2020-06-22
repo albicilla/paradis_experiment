@@ -176,6 +176,11 @@ int CallProcesses=0;
 int swapNum=0;
 int needRepairNum=0;
 int prefer_insert=0;
+
+double repair_ck=0.0;
+ofstream writing_file;
+
+
 template<class D,int kth_byte>
 inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     ll cnt[MaxKisuu];
@@ -326,7 +331,13 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 #pragma omp single
  {
    end_ck=omp_get_wtime();
-      cout<<"clock \t"<<(end_ck-start_ck)*1000<<"[ms]"<<endl;
+
+   repair_ck=(end_ck-start_ck)*1000;
+      cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
+      //repairは複数回行われるため
+      writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
+
+
  }
       
     }//end of while
@@ -411,16 +422,16 @@ signed main(int argc, char** argv){
     cout<<" finish!"<<endl;cout<<endl;
 
 
-    string filename = "log.txt";
+    string filename = "log_repair.txt";
 
-    ofstream writing_file;
+    
     writing_file.open(filename,ios::app);
 
      ll Ds = -1;
 
     NumRange=0;while(Ds){NumRange++;Ds/=kisuu;}
    cout<<"NumRange="<<NumRange<<" "<<endl;
-    
+   writing_file<<argv[0]<<endl;
     writing_file<<"threadNum="<<threadNum<<" Datasize="<<DATASIZE<<" NumRange="<<NumRange<<endl;
    
     

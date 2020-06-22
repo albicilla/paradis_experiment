@@ -183,7 +183,7 @@ int needRepairNum=0;
 int prefer_insert=0;
 
 
-double repair_ck=0.0;
+double repair_ck,permute_ck,buildhist_ck;
 ofstream writing_file;
 
 template<class D,int kth_byte>
@@ -213,6 +213,8 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     int var_p=processes;
     ll nthAftKey[256];
     double start_ck,end_ck;
+    //buildhist_ck time start
+    start_ck=omp_get_wtime();
 #pragma omp parallel num_threads(processes)   
       {
 
@@ -255,9 +257,18 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     }
 
     #pragma omp barrier
+    #pragma omp single
+    {
+      //buildhist time end
+      end_ck=omp_get_wtime();
+      double buildhist_ck=(end_ck-start_ck)*1000;
+      writing_file<<"buildhist time "<<buildhist_ck<<"[ms]"<<endl;
+    }
     //step3
     while(SumCi!=0){
-      
+      //permute time start
+      #pragma omp single
+      start_ck=omp_get_wtime();
 
 #pragma omp for
       for(int ii=0;ii<var_p;ii++)
@@ -304,6 +315,10 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 
 #pragma omp single
       {
+	//permute time end
+	end_ck=omp_get_wtime();
+	permute_ck=(end_ck-start_ck)*1000;
+	writing_file<<"permute time "<<permute_ck<<"[ms]"<<endl;
       nth=1;
       SumCi=0;      
       }
@@ -365,7 +380,6 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
         }
 	//cout<<"SumCi="<<SumCi<<endl;
 	end_ck=omp_get_wtime();
-
 	repair_ck=(end_ck-start_ck)*1000;
 	cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
 	//because of repair loops we need distinctly count clock
@@ -453,7 +467,7 @@ signed main(int argc, char** argv){
     cout<<" finish!"<<endl;cout<<endl;
 
 
-    string filename = "log_repair.txt";
+    string filename = "log_ap_3.txt";
 
     
     writing_file.open(filename,ios::app);
@@ -471,7 +485,7 @@ signed main(int argc, char** argv){
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
     omp_set_max_active_levels(4);
-    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
+    RadixSort<ll,3>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 

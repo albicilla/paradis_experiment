@@ -12,6 +12,5 @@ for i in `seq 0 7`; do
 	#echo ${i}
 	echo ${thnum}
 	./icc_paradis_ompf_repair_read ${thnum} /data/1_1_10^9 1000000000
-
     done
 done

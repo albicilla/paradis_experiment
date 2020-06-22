@@ -82,7 +82,6 @@ const int MaxKisuu=256;
 int threadNum;
 int NumRange=0;
 ll unsortCnt=0;
-ll calldetemine=0;
 
 //std::vector<ll> Dataset;
 //concurrent_vector<int> v;
@@ -130,11 +129,7 @@ static const ll kRadixBin = 1LL << kRadixBits;
 
 template<class D>
 inline int determineDigitBucket(int stage,D num){
-  // calldetemine++;
- //  int ret=((num)/(int)pow(kisuu,stage));
- // return ret%(kisuu);
- 
-    return ((num>>(8*stage))&kRadixMask);
+  return ((num>>(8*stage))&kRadixMask);
 }
 
 
@@ -182,9 +177,9 @@ int swapNum=0;
 int needRepairNum=0;
 int prefer_insert=0;
 
-
 double repair_ck=0.0;
 ofstream writing_file;
+
 
 template<class D,int kth_byte>
 inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
@@ -209,9 +204,8 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     int SumCi=elenum,nth=2;
     int roop=0;
     //for paradis repair
-    ll pfp[processes+1];
+    //    ll pfp[processes+1];
     int var_p=processes;
-    ll nthAftKey[256];
     double start_ck,end_ck;
 #pragma omp parallel num_threads(processes)   
       {
@@ -307,71 +301,43 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       nth=1;
       SumCi=0;      
       }
-#pragma omp barrier	
-
-      #pragma omp single
-      {
-        ll pfpN=kisuu/var_p;
-        ll pfpM=kisuu%var_p;
-        pfp[0]=0LL;
-        ll pfpMR=0LL;
-        for(ll i=1LL;i<var_p+1LL;i++){
-          if(pfpMR<pfpM)pfpMR++;
-          pfp[i]=i*pfpN+pfpMR;
-        }
-      }
 #pragma omp barrier
-
 #pragma omp single
-      {
-	start_ck = omp_get_wtime();
-      }
-      #pragma omp for
-      for(int i=0;i<kisuu;i++){
-	//        for(ll i=pfp[k];i<pfp[k+1];i++){
-          ll tail=gt[i];
-          {
-            for(int pID=0;pID<var_p;pID++){
-              ll head=ph[pID][i];
-              while(head<pt[pID][i]&&head<tail){
-                int v=arr[head++];
-		nthAftKey[i]++;
-                if(determineDigitBucket(kth_byte,v)!=i){
-                  while(head<=tail){
-                    int w=arr[--tail];
-                    if(determineDigitBucket(kth_byte,w)==i){
-                      arr[head-1LL]=w;
-                      arr[tail]=v;
-                      break;
-                    }
-                  }
-                }
-              }
-            }
-	    // }
-          gh[i]=tail;
-        }
-      }
+      start_ck=omp_get_wtime();
+ #pragma omp for
+ for(int k=0;k<kRadixBin;k++){
+   ll nthAftKey=0LL;
+   for(int pID=0;pID<var_p;pID++){
+     if(pt[pID][k]-ph[pID][k]>=1e7 && ph[pID][k]-nthAftKey>=pt[pID][k]-ph[pID][k]){
+       //             cout<<"more than 1e7!"<<endl;
+    #pragma omp parallel for num_threads(thread::hardware_concurrency()/processes)
+    for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
+    // if(gh[k]==-1)gh[k]=ph[pID][k];
+        _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
+    }
+    }else{
+    for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
+    // if(gh[k]==-1)gh[k]=ph[pID][k];
+    _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
+    }
+   }
+     nthAftKey+=(pt[pID][k]-ph[pID][k]);
+   }
+   gt[k]=gh[k]+nthAftKey;
+   if(gt[k]-gh[k]>0LL)SumCi=1;
+ }
 
-     
+ #pragma omp barrier
+#pragma omp single
+ {
+   end_ck=omp_get_wtime();
+   repair_ck=(end_ck-start_ck)*1000;
+      cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
+      //repairは複数回行われるため
+      writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
+
+ }
       
-#pragma omp barrier
-#pragma omp single
-      {
-        int prevSumCi=SumCi;
-        SumCi=0;
-        for(int i=0;i<kisuu;i++){
-          SumCi+=(gt[i]-gh[i]);
-        }
-	//cout<<"SumCi="<<SumCi<<endl;
-	end_ck=omp_get_wtime();
-
-	repair_ck=(end_ck-start_ck)*1000;
-	cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
-	//because of repair loops we need distinctly count clock
-	writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
-      }
-#pragma omp barrier
     }//end of while
     }//end of omp2
 
@@ -442,6 +408,7 @@ signed main(int argc, char** argv){
     if(Dataset[i]==1)flag_one=true;
     }
 
+    //in general case this is not need
     /*
     if(!flag_one){
       cout<<"Error no one"<<endl;
@@ -453,7 +420,7 @@ signed main(int argc, char** argv){
     cout<<" finish!"<<endl;cout<<endl;
 
 
-    string filename = "log_repair.txt";
+    string filename = "log_ap_3.txt";
 
     
     writing_file.open(filename,ios::app);
@@ -471,7 +438,7 @@ signed main(int argc, char** argv){
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
     omp_set_max_active_levels(4);
-    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
+    RadixSort<ll,3>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 
@@ -494,5 +461,5 @@ signed main(int argc, char** argv){
 
     printf("paradis time %lf[ms]\n",elapsed);
     writing_file<<"paradis time "<<elapsed<<"\n"<<endl;
-    dump(calldetemine);
 }
+
