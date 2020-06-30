@@ -262,7 +262,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
       //buildhist time end
       end_ck=omp_get_wtime();
       double buildhist_ck=(end_ck-start_ck)*1000;
-      writing_file<<"buildhist time "<<buildhist_ck<<"[ms]"<<endl;
+      //      writing_file<<"buildhist time "<<buildhist_ck<<"[ms]"<<endl;
     }
     //step3
     while(SumCi!=0){
@@ -318,7 +318,7 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 	//permute time end
 	end_ck=omp_get_wtime();
 	permute_ck=(end_ck-start_ck)*1000;
-	writing_file<<"permute time "<<permute_ck<<"[ms]"<<endl;
+	//writing_file<<"permute time "<<permute_ck<<"[ms]"<<endl;
       nth=1;
       SumCi=0;      
       }
@@ -381,9 +381,9 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 	//cout<<"SumCi="<<SumCi<<endl;
 	end_ck=omp_get_wtime();
 	repair_ck=(end_ck-start_ck)*1000;
-	cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
+	//cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
 	//because of repair loops we need distinctly count clock
-	writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
+	//writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
       }
 #pragma omp barrier
     }//end of while

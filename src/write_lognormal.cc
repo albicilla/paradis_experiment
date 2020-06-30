@@ -9,7 +9,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #define SIZE (1000LL * 100LL * 25LL * 1LL)
-#define FILE "/data/uni_10^9_0or1"
+#define FILE "/data/lognormal_10^9"
 
 using namespace std;
 
@@ -28,27 +28,27 @@ signed main()
   cout << "0" << endl;
   
   long long idx=0LL,n=SIZE;
-  uniform_int_distribution<int> dist(0.0,1);
+  lognormal_distribution<> dist(0.0,255);
   random_device seed_gen;
   default_random_engine engine(seed_gen());
   
   for(ll i=0;i<n;i++){
       for(int j=0;j<100;j++){
-          data[idx]=dist(engine);
+	data[idx]=(int)dist(engine);
           idx++;
       }
   }
   cout << "1:" <<idx<< endl;
   for(ll i=0;i<n;i++){
       for(int j=0;j<100;j++){
-          data[idx]=dist(engine);
+	data[idx]=(int)dist(engine);
           idx++;
       }
   }
   cout << "2:" << idx<<endl;
   for(ll i=0;i<n;i++){
       for(int j=0;j<100;j++){
-          data[idx]=dist(engine);
+	data[idx]=(int)dist(engine);
           idx++;
       }
   }
@@ -56,7 +56,7 @@ signed main()
   cout << "3" << endl;
   for(ll i=0;i<n;i++){
       for(int j=0;j<100;j++){
-          data[idx]=dist(engine);
+	data[idx]=(int)dist(engine);
           idx++;
       }
   }

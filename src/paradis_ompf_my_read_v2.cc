@@ -115,8 +115,8 @@ void makeDataset(int* Dataset){
        exit(1);
      }
     }
-    */
   
+    */
     close(fd);
     cout << "close done" << endl;
 }
@@ -179,7 +179,7 @@ int swapNum=0;
 int needRepairNum=0;
 int prefer_insert=0;
 
-double repair_ck=0.0;
+double repair_ck,permute_ck,buildhist_ck;
 ofstream writing_file;
 
 
@@ -209,6 +209,8 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     //    ll pfp[processes+1];
     int var_p=processes;
     double start_ck,end_ck;
+    //buildhist_ck time start
+    start_ck=omp_get_wtime();
 #pragma omp parallel num_threads(processes)   
       {
 
@@ -251,10 +253,19 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
     }
 
     #pragma omp barrier
+    #pragma omp single
+    {
+      //buildhist time end
+      end_ck=omp_get_wtime();
+      double buildhist_ck=(end_ck-start_ck)*1000;
+      writing_file<<"buildhist time "<<buildhist_ck<<"[ms]"<<endl;
+    }
+    
     //step3
     while(SumCi!=0){
-      
-
+      //permute time start
+      #pragma omp single
+      start_ck=omp_get_wtime();
 #pragma omp for
       for(int ii=0;ii<var_p;ii++)
         {
@@ -300,6 +311,10 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 
 #pragma omp single
       {
+	//permute time end
+	end_ck=omp_get_wtime();
+	permute_ck=(end_ck-start_ck)*1000;
+	writing_file<<"permute time"<<permute_ck<<"[ms]"<<endl;
       nth=1;
       SumCi=0;      
       }
@@ -309,23 +324,25 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
  #pragma omp for
  for(int k=0;k<kRadixBin;k++){
    ll nthAftKey=0LL;
-   for(int pID=0;pID<var_p;pID++){
-     if(pt[pID][k]-ph[pID][k]>=1e7 && ph[pID][k]-nthAftKey>=pt[pID][k]-ph[pID][k]){
+   for(int pID=var_p-1;pID>=0;pID--){
+     //ll swapElements = min(pt[pID][k]-ph[pID][k],gt[k]-pt[pID][k]-nthAftKey+1);
+     //     ll swapElements =(pt[pID][k]-ph[pID][k]);
+     if(pt[pID][k]-ph[pID][k]>=1e7){
        //             cout<<"more than 1e7!"<<endl;
-    #pragma omp parallel for num_threads(4)
+       #pragma omp parallel for num_threads(4)
     for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
     // if(gh[k]==-1)gh[k]=ph[pID][k];
-        _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
+        _swap(arr[gt[k]-(ii-ph[pID][k])-nthAftKey-1],arr[ii]);
     }
     }else{
-    for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
+       for(ll ii=ph[pID][k];ii<pt[pID][k];ii++){
     // if(gh[k]==-1)gh[k]=ph[pID][k];
-    _swap(arr[gh[k]+(ii-ph[pID][k])+nthAftKey],arr[ii]);
+    _swap(arr[gt[k]-(ii-ph[pID][k])-nthAftKey-1],arr[ii]);
     }
    }
      nthAftKey+=(pt[pID][k]-ph[pID][k]);
    }
-   gt[k]=gh[k]+nthAftKey;
+   gh[k]=gt[k]-nthAftKey;
    if(gt[k]-gh[k]>0LL)SumCi=1;
  }
 
@@ -333,12 +350,10 @@ inline void RadixSort(int* arr,ll elenum,ll start,int processes=1){
 #pragma omp single
  {
    end_ck=omp_get_wtime();
-
    repair_ck=(end_ck-start_ck)*1000;
       cout<<"clock \t"<<repair_ck<<"[ms]"<<endl;
       //repairは複数回行われるため
       writing_file<<"repair time "<<repair_ck<<"[ms]"<<endl;
-
 
  }
       
@@ -413,7 +428,6 @@ signed main(int argc, char** argv){
     if(Dataset[i]==1)flag_one=true;
     }
     */
-
     //in general case this is not need
     /*
     if(!flag_one){
@@ -426,7 +440,7 @@ signed main(int argc, char** argv){
     cout<<" finish!"<<endl;cout<<endl;
 
 
-    string filename = "log_repair.txt";
+    string filename = "log_ap_3.txt";
 
     
     writing_file.open(filename,ios::app);
@@ -444,7 +458,7 @@ signed main(int argc, char** argv){
     auto start = std::chrono::system_clock::now();
     //sortしたい目的の配列,levelの数,次のlevelに渡すindexの配列,levelの深さ
     omp_set_max_active_levels(4);
-    RadixSort<ll,0>(Dataset,DATASIZE,0,threadNum);
+    RadixSort<ll,1>(Dataset,DATASIZE,0,threadNum);
     auto end = std::chrono::system_clock::now();
 
 
